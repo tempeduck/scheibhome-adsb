@@ -7,7 +7,7 @@ stack on **10.10.1.71** via Docker container inspection + realtime feeder stats)
 > Source of truth is the running stack on 10.10.1.71 (`/opt/adsb/docker-compose.yml`),
 > not this file — re-check with `curl -s http://10.10.1.19:3010/api/adsb/feeders`.
 
-## Installed & feeding (8)
+## Installed & feeding (9)
 
 | Feeder | Container / source | Notes |
 |---|---|---|
@@ -19,8 +19,9 @@ stack on **10.10.1.71** via Docker container inspection + realtime feeder stats)
 | AirNav RadarBox | `airnavradar` (audit) | rbfeeder, Server: ready |
 | RadarVirtuel | `radarvirtuel` (audit) | Receiver: connected, MLAT active |
 | Plane.watch | `planewatch` (audit) | ADSB=healthy, MLAT=healthy |
+| Airframes | `acars_router` (audit) | ACARS/VDL2 feed; VDL2 active |
 
-## NOT installed (3)
+## NOT installed (2)
 
 These appear on the radar-dash Feeders page as **NOT INSTALLED** (dashed gray
 card). They are recognized aggregators that the stack *could* feed but currently
@@ -30,7 +31,6 @@ does not — "Not configured on this host."
 |---|---|---|---|
 | **OpenSky Network** (`opensky`) | https://opensky-network.org/my-opensky | not_installed | `opensky` container was previously added to `docker-compose.yml` (commit c46711d) but needs `OPENSKY_USERNAME` + `OPENSKY_SERIAL` in `/opt/adsb/.env`; generate serial via one-time docker run. |
 | **ADS-B One** (`adsbone`) | https://adsb.one/ | not_installed | Feed via ultrafeeder `ULTRAFEEDER_CONFIG` (adsb.one accepts Beast/`mlat` ingest, `feed.adsb.one`). No container needed. |
-| **Airframes** (`airframes`) | https://airframes.io/ | not_installed | Airframes is ACARS/VDL/HFDL-focused (not pure ADS-B); needs a separate acarsdec/dumpvdl2 feeder, not just an SDR ADS-B feed. |
 
 Note: a 4th feeder, **Radar1090 UK** (`radar1090`), was also added to the
 compose file (commit c46711d) but is UK/Ireland-focused and may not accept this

@@ -404,8 +404,6 @@ services:
       - /var/log
 
   dumpvdl2:
-    profiles:
-      - donotstart
     image: ghcr.io/sdr-enthusiasts/docker-dumpvdl2:latest
     container_name: dumpvdl2
     restart: unless-stopped
@@ -429,19 +427,18 @@ services:
       - /var/log
 
 ######################################################################################################################################
-# DISABLED — no upstream SDR data source (enable acarsdec/dumpvdl2 first)
+# ACARS/VDL2 message routing and local history
 
   acars_router:
-    profiles:
-      - donotstart
     image: ghcr.io/sdr-enthusiasts/acars_router:latest
     container_name: acars_router
     restart: unless-stopped
     environment:
       - TZ=${FEEDER_TZ}
-      - AR_SEND_UDP_ACARS=acarshub:5550;feed.acars.io:5550
-      - AR_SEND_UDP_VDLM2=acarshub:5555
-      - AR_SEND_TCP_VDLM2=feed.acars.io:5553
+      - AR_ENABLE_DEDUPE=true
+      - AR_SEND_UDP_VDLM2=feed.adsbiq.com:5552;feedthe.acarsdrama.com:5555
+      - AR_SEND_UDP_ACARS=feed.airframes.io:5550
+      - AR_SEND_TCP_VDLM2=feed.airframes.io:5553;feed-acars.adsb.lol:5552
       - AR_RECV_ZMQ_VDLM2=dumpvdl2:45555
     ports:
       - 15550:15550
@@ -451,22 +448,22 @@ services:
       - /var/log
 
   acarshub:
-    profiles:
-      - donotstart
     image: ghcr.io/sdr-enthusiasts/docker-acarshub:latest
     container_name: acarshub
     hostname: acarshub
     restart: unless-stopped
     ports:
-      - 8091:80
+      - 8092:80
     environment:
       - TZ=${FEEDER_TZ}
       - ADSB_LAT=${FEEDER_LAT}
       - ADSB_LON=${FEEDER_LONG}
       - ENABLE_ADSB=true
-      - ADSB_URL=http://tar1090/data/aircraft.json
+      - ADSB_URL=http://ultrafeeder/data/aircraft.json
       - ENABLE_ACARS=external
       - ENABLE_VDLM=external
+      - ACARS_CONNECTIONS=zmq://acars_router:45550
+      - VDLM_CONNECTIONS=zmq://acars_router:45555
     volumes:
       - /opt/adsb/acars_data:/run/acars
     tmpfs:
